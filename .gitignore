@@ -15,6 +15,7 @@
 *.out
 cover.html
 lint.log
+/target/go/bin
 
 # Dependency directories (remove the comment below to include it)
 vendor/

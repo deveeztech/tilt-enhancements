@@ -1,3 +1,4 @@
+export GOBIN ?= $(shell pwd)/target/go/bin
 
 GO_FILES := $(shell \
 	find . '(' -path '*/.*' -o -path './vendor' ')' -prune \
@@ -29,5 +30,5 @@ lint:
 	@go vet ./... 2>&1 | tee -a lint.log
 	@echo "Checking staticcheck"
 	@go install honnef.co/go/tools/cmd/staticcheck@2023.1.2
-	@staticcheck ./... 2>&1 |  tee -a lint.log
+	@$(GOBIN)/staticcheck ./... 2>&1 |  tee -a lint.log
 	@[ ! -s lint.log ]
