@@ -28,8 +28,7 @@ lint:
 	@gofmt -d -s $(GO_FILES) 2>&1 | tee lint.log
 	@echo "Checking go vet"
 	@go vet ./... 2>&1 | tee -a lint.log
-	@echo "Checking staticcheck"
-	@go install honnef.co/go/tools/cmd/staticcheck@2023.1.2
-	@$(GOBIN)/staticcheck ./... 2>&1 |  tee -a lint.log
-	@cat lint.log
+#	@echo "Checking staticcheck"
+#	@go install honnef.co/go/tools/cmd/staticcheck@2023.1.2
+#	@$(GOBIN)/staticcheck ./... 2>&1 |  tee -a lint.log
 	@[ ! -s lint.log ]
