@@ -23,12 +23,7 @@ cover:
 
 .PHONY: lint
 lint:
-	@rm -rf lint.log
-	@echo "Checking gofmt"
-	@gofmt -d -s $(GO_FILES) 2>&1 | tee lint.log
-	@echo "Checking go vet"
-	@go vet ./... 2>&1 | tee -a lint.log
-#	@echo "Checking staticcheck"
-#	@go install honnef.co/go/tools/cmd/staticcheck@2023.1.2
-#	@$(GOBIN)/staticcheck ./... 2>&1 |  tee -a lint.log
-	@[ ! -s lint.log ]
+	gofmt -d -s $(GO_FILES)
+	go vet ./...
+	go install honnef.co/go/tools/cmd/staticcheck@2023.1.2
+	$(GOBIN)/staticcheck ./...
