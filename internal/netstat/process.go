@@ -8,6 +8,9 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 const (
@@ -135,6 +138,25 @@ func getData(t string) ([]string, error) {
 
 }
 
+func processNetstatLine(line string, fileDescriptors *[]iNode, output chan<- Process) {
+	line_array := removeEmpty(strings.Split(strings.TrimSpace(line), " "))
+	ip_port := strings.Split(line_array[1], ":")
+	ip := convertIp(ip_port[0])
+	port := hexToDec(ip_port[1])
+
+	// foreign ip and port
+	fip_port := strings.Split(line_array[2], ":")
+	fip := convertIp(fip_port[0])
+	fport := hexToDec(fip_port[1])
+
+	state := STATE[line_array[3]]
+	uid := getUser(line_array[7])
+	pid := findPid(line_array[9], fileDescriptors)
+	exe := getProcessExe(pid)
+	name := getProcessName(exe)
+	output <- Process{uid, name, pid, exe, state, ip, int(port), fip, int(fport)}
+}
+
 func hexToDec(h string) int64 {
 	d, _ := strconv.ParseInt(h, 16, 32)
 	return d
@@ -201,7 +223,7 @@ func getProcessExe(pid string) string {
 func getProcessName(exe string) string {
 	n := strings.Split(exe, "/")
 	name := n[len(n)-1]
-	return strings.Title(name)
+	return cases.Title(language.English).String(name)
 }
 
 func getUser(uid string) string {
@@ -221,25 +243,6 @@ func removeEmpty(array []string) []string {
 		}
 	}
 	return new_array
-}
-
-func processNetstatLine(line string, fileDescriptors *[]iNode, output chan<- Process) {
-	line_array := removeEmpty(strings.Split(strings.TrimSpace(line), " "))
-	ip_port := strings.Split(line_array[1], ":")
-	ip := convertIp(ip_port[0])
-	port := hexToDec(ip_port[1])
-
-	// foreign ip and port
-	fip_port := strings.Split(line_array[2], ":")
-	fip := convertIp(fip_port[0])
-	fport := hexToDec(fip_port[1])
-
-	state := STATE[line_array[3]]
-	uid := getUser(line_array[7])
-	pid := findPid(line_array[9], fileDescriptors)
-	exe := getProcessExe(pid)
-	name := getProcessName(exe)
-	output <- Process{uid, name, pid, exe, state, ip, int(port), fip, int(fport)}
 }
 
 func getInodes() []iNode {

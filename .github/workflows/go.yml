@@ -1,0 +1,46 @@
+
+name: Go
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+    branches: ['*']
+
+permissions:
+  contents: read
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: '${{ github.workspace }}/go.mod'
+
+    - name: Load cached dependencies
+      uses: actions/cache@v1
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+    
+    - name: Lint
+      run: make lint
+
+    - name: Test
+      run: make cover
+
+    - name: Upload coverage to codecov.io
+      uses: codecov/codecov-action@v3
+      with:
+        fail_ci_if_error: true
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
