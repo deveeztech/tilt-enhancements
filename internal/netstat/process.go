@@ -126,8 +126,7 @@ func getData(t string) ([]string, error) {
 
 	data, err := os.ReadFile(proc_t)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return nil, err
 	}
 
 	lines := strings.Split(string(data), "\n")
@@ -243,17 +242,12 @@ func processNetstatLine(line string, fileDescriptors *[]iNode, output chan<- Pro
 	output <- Process{uid, name, pid, exe, state, ip, int(port), fip, int(fport)}
 }
 
-func getFileDescriptors() []string {
-	d, err := filepath.Glob("/proc/[0-9]*/fd/[0-9]*")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	return d
-}
-
 func getInodes() []iNode {
-	fileDescriptors := getFileDescriptors()
+	fileDescriptors, err := getFileDescriptors("/proc/[0-9]*/fd/[0-9]*")
+	if err != nil {
+		return nil
+	}
+
 	inodes := make([]iNode, len(fileDescriptors))
 	res := make(chan iNode, len(fileDescriptors))
 
@@ -270,4 +264,12 @@ func getInodes() []iNode {
 	}
 
 	return inodes
+}
+
+func getFileDescriptors(pattern string) ([]string, error) {
+	d, err := filepath.Glob(pattern)
+	if err != nil {
+		return nil, err
+	}
+	return d, nil
 }
