@@ -31,4 +31,5 @@ lint:
 	@echo "Checking staticcheck"
 	@go install honnef.co/go/tools/cmd/staticcheck@2023.1.2
 	@$(GOBIN)/staticcheck ./... 2>&1 |  tee -a lint.log
+	@cat lint.log
 	@[ ! -s lint.log ]
