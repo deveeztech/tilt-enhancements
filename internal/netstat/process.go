@@ -67,8 +67,8 @@ type Process struct {
 type Processes []Process
 
 type iNode struct {
-	Path string
-	Link string
+	path string
+	link string
 }
 
 func Tcp() (Processes, error) {
@@ -195,13 +195,12 @@ func findPid(inode string, inodes *[]iNode) string {
 	// Loop through all fd dirs of process on /proc to compare the inode and
 	// get the pid.
 
-	pid := "-"
-
+	pid := ""
 	re := regexp.MustCompile(inode)
 	for _, item := range *inodes {
-		out := re.FindString(item.Link)
+		out := re.FindString(item.link)
 		if len(out) != 0 {
-			pid = strings.Split(item.Path, "/")[2]
+			pid = strings.Split(item.path, "/")[2]
 		}
 	}
 	return pid
