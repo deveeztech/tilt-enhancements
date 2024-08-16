@@ -5,9 +5,8 @@ import (
 	"testing"
 )
 
-func TestIsAwaitEnabled_SetToTrue(t *testing.T) {
-	// Test when TILT_AWAIT_DEBUGGER_ENABLED is set to true
-	os.Setenv(TILT_AWAIT_DEBUGGER_ENABLED, "true")
+func TestIsAwaitEnabledSetToTrue(t *testing.T) {
+	os.Setenv(EnvDebuguerEnabled, "true")
 	expected := true
 	result := isAwaitEnabled()
 	if result != expected {
@@ -15,9 +14,8 @@ func TestIsAwaitEnabled_SetToTrue(t *testing.T) {
 	}
 }
 
-func TestIsAwaitEnabled_SetToFalse(t *testing.T) {
-	// Test when TILT_AWAIT_DEBUGGER_ENABLED is set to false
-	os.Setenv(TILT_AWAIT_DEBUGGER_ENABLED, "false")
+func TestIsAwaitEnabledSetToFalse(t *testing.T) {
+	os.Setenv(EnvDebuguerEnabled, "false")
 	expected := false
 	result := isAwaitEnabled()
 	if result != expected {
@@ -25,9 +23,8 @@ func TestIsAwaitEnabled_SetToFalse(t *testing.T) {
 	}
 }
 
-func TestIsAwaitEnabled_NotSet(t *testing.T) {
-	// Test when TILT_AWAIT_DEBUGGER_ENABLED is not set
-	os.Unsetenv(TILT_AWAIT_DEBUGGER_ENABLED)
+func TestIsAwaitEnabledNotSet(t *testing.T) {
+	os.Unsetenv(EnvDebuguerEnabled)
 	expected := false
 	result := isAwaitEnabled()
 	if result != expected {
