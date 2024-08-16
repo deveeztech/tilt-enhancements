@@ -11,8 +11,8 @@ Enhancements for [Tilt](https://tilt.dev/) toolkit
 
 Released under the [MIT License](LICENSE).
 
-[doc-img]: https://godoc.org/github.com/deveeztech/tilt-enhancements/await?status.svg
-[doc]: https://godoc.org/deveeztech/tilt-enhancements/await
+[doc-img]: https://godoc.org/github.com/deveeztech/tilt-enhancements/pkg/await?status.svg
+[doc]: https://godoc.org/deveeztech/tilt-enhancements/pkg/await
 [ci-img]: https://github.com/deveeztech/tilt-enhancements/actions/workflows/go.yml/badge.svg
 [ci]: https://github.com/deveeztech/tilt-enhancements/actions/workflows/go.yml
 [cov-img]: https://codecov.io/gh/deveeztech/tilt-enhancements/branch/main/graph/badge.svg
