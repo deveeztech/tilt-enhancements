@@ -40,3 +40,21 @@ func TestRemoveEmpty(t *testing.T) {
 		t.Errorf("removeEmpty(%v) = %v; want %v", input, result, expected)
 	}
 }
+func TestContains(t *testing.T) {
+	s := []string{"apple", "banana", "orange"}
+
+	// Test case: element exists in the slice
+	if !contains(s, "banana") {
+		t.Errorf("contains(%v, %s) = false; want true", s, "banana")
+	}
+
+	// Test case: element does not exist in the slice
+	if contains(s, "grape") {
+		t.Errorf("contains(%v, %s) = true; want false", s, "grape")
+	}
+
+	// Test case: empty slice
+	if contains([]string{}, "apple") {
+		t.Errorf("contains(%v, %s) = true; want false", []string{}, "apple")
+	}
+}

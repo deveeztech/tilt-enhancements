@@ -41,7 +41,7 @@ func Start(opts ...Option) error {
 	// Default configuration
 	cfg := &config{
 		pollingInterval: time.Duration(getEnv(EnvPollingInterval, DefaultPollingInterval)) * time.Second,
-		connType:        netstat.TCP,
+		connType:        netstat.TcpType,
 		portToListen:    getEnv(EnvPortToListen, DefaultPortToListen),
 	}
 
@@ -59,7 +59,7 @@ func Start(opts ...Option) error {
 		}
 
 		for _, p := range d {
-			if p.ForeignPort == cfg.portToListen && p.State == netstat.ESTABLISHED_STATE {
+			if p.ForeignPort == cfg.portToListen && p.State == netstat.EstablishedState {
 				cfg.log("new connection detected in port %d, exit from await", cfg.portToListen)
 				return nil
 			}

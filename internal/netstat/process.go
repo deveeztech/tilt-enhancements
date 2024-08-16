@@ -14,42 +14,43 @@ import (
 )
 
 const (
-	TCP  = "tcp"
-	TCP6 = "tcp6"
-	UDP  = "udp"
-	UDP6 = "udp6"
+	TcpType  = "tcp"
+	Tcp6Type = "tcp6"
+	UdpType  = "udp"
+	Udp6Type = "udp6"
 
-	PROC_TCP  = "/proc/net/tcp"
-	PROC_UDP  = "/proc/net/udp"
-	PROC_TCP6 = "/proc/net/tcp6"
-	PROC_UDP6 = "/proc/net/udp6"
+	EstablishedState = "ESTABLISHED"
+	SynSentState     = "SYN_SENT"
+	SynRecvState     = "SYN_RECV"
+	FinWait1State    = "FIN_WAIT1"
+	FinWait2State    = "FIN_WAIT2"
+	TimeWaitState    = "TIME_WAIT"
+	CloseState       = "CLOSE"
+	CloseWaitState   = "CLOSE_WAIT"
+	LastAckState     = "LAST_ACK"
+	ListenState      = "LISTEN"
+	ClosingState     = "CLOSING"
 
-	ESTABLISHED_STATE = "ESTABLISHED"
-	SYN_SENT_STATE    = "SYN_SENT"
-	SYN_RECV_STATE    = "SYN_RECV"
-	FIN_WAIT1_STATE   = "FIN_WAIT1"
-	FIN_WAIT2_STATE   = "FIN_WAIT2"
-	TIME_WAIT_STATE   = "TIME_WAIT"
-	CLOSE_STATE       = "CLOSE"
-	CLOSE_WAIT_STATE  = "CLOSE_WAIT"
-	LAST_ACK_STATE    = "LAST_ACK"
-	LISTEN_STATE      = "LISTEN"
-	CLOSING_STATE     = "CLOSING"
+	FileDescriptors = "/proc/[0-9]*/fd/[0-9]*"
+
+	UnknownUser = "Unknown"
 )
 
-var STATE = map[string]string{
-	"01": ESTABLISHED_STATE,
-	"02": SYN_SENT_STATE,
-	"03": SYN_RECV_STATE,
-	"04": FIN_WAIT1_STATE,
-	"05": FIN_WAIT2_STATE,
-	"06": TIME_WAIT_STATE,
-	"07": CLOSE_STATE,
-	"08": CLOSE_WAIT_STATE,
-	"09": LAST_ACK_STATE,
-	"0A": LISTEN_STATE,
-	"0B": CLOSING_STATE,
+var State = map[string]string{
+	"01": EstablishedState,
+	"02": SynSentState,
+	"03": SynRecvState,
+	"04": FinWait1State,
+	"05": FinWait2State,
+	"06": TimeWaitState,
+	"07": CloseState,
+	"08": CloseWaitState,
+	"09": LastAckState,
+	"0A": ListenState,
+	"0B": ClosingState,
 }
+
+var AllowedTypes = []string{TcpType, Tcp6Type, UdpType, Udp6Type}
 
 type Process struct {
 	User        string
@@ -66,27 +67,27 @@ type Process struct {
 type Processes []Process
 
 type iNode struct {
-	path string
-	link string
+	Path string
+	Link string
 }
 
 func Tcp() (Processes, error) {
-	return netstat(TCP)
+	return netstat(TcpType)
 }
 
 func Udp() (Processes, error) {
-	return netstat(PROC_UDP6)
+	return netstat(UdpType)
 }
 
 func Tcp6() (Processes, error) {
-	return netstat("tcp6")
+	return netstat(Tcp6Type)
 }
 
 func Udp6() (Processes, error) {
-	return netstat("udp6")
+	return netstat(Udp6Type)
 }
 
-// Require root acess to get information about some processes.
+// Require root access to get information about some processes.
 func netstat(t string) (Processes, error) {
 
 	data, err := getData(t)
@@ -112,22 +113,12 @@ func netstat(t string) (Processes, error) {
 
 func getData(t string) ([]string, error) {
 
-	var proc_t string
-
-	switch t {
-	case TCP:
-		proc_t = PROC_TCP
-	case UDP:
-		proc_t = PROC_UDP
-	case TCP6:
-		proc_t = PROC_TCP6
-	case UDP6:
-		proc_t = PROC_UDP6
-	default:
-		return nil, fmt.Errorf("invalid type %s", t)
+	if !contains(AllowedTypes, t) {
+		return nil, fmt.Errorf("type %s not allowed", t)
 	}
 
-	data, err := os.ReadFile(proc_t)
+	filename := fmt.Sprintf("/proc/net/%s", t)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -139,22 +130,24 @@ func getData(t string) ([]string, error) {
 }
 
 func processNetstatLine(line string, fileDescriptors *[]iNode, output chan<- Process) {
-	line_array := removeEmpty(strings.Split(strings.TrimSpace(line), " "))
-	ip_port := strings.Split(line_array[1], ":")
-	ip := convertIp(ip_port[0])
-	port := hexToDec(ip_port[1])
 
-	// foreign ip and port
-	fip_port := strings.Split(line_array[2], ":")
-	fip := convertIp(fip_port[0])
-	fport := hexToDec(fip_port[1])
+	lineArray := removeEmpty(strings.Split(strings.TrimSpace(line), " "))
 
-	state := STATE[line_array[3]]
-	uid := getUser(line_array[7])
-	pid := findPid(line_array[9], fileDescriptors)
+	ipPortData := strings.Split(lineArray[1], ":")
+	ip := convertIp(ipPortData[0])
+	port := hexToDec(ipPortData[1])
+
+	foreignData := strings.Split(lineArray[2], ":")
+	foreignIP := convertIp(foreignData[0])
+	foreignPort := hexToDec(foreignData[1])
+
+	state := State[lineArray[3]]
+	uid := getUser(lineArray[7])
+	pid := findPid(lineArray[9], fileDescriptors)
 	exe := getProcessExe(pid)
 	name := getProcessName(exe)
-	output <- Process{uid, name, pid, exe, state, ip, int(port), fip, int(fport)}
+
+	output <- Process{uid, name, pid, exe, state, ip, int(port), foreignIP, int(foreignPort)}
 }
 
 func hexToDec(h string) int64 {
@@ -162,11 +155,11 @@ func hexToDec(h string) int64 {
 	return d
 }
 
-// Converts the ipv4 to decimal. Have to rearrange the ip because the
+// Converts the IPv4 to decimal. Have to rearrange the IP because the
 // default value is in little Endian order.
 func convertIp(ip string) string {
 
-	// Check ip size if greater than 8 is a ipv6 type
+	// Check IP size if greater than 8 is an IPv6 type
 	if len(ip) > 8 {
 		i := []string{ip[30:32],
 			ip[28:30],
@@ -206,9 +199,9 @@ func findPid(inode string, inodes *[]iNode) string {
 
 	re := regexp.MustCompile(inode)
 	for _, item := range *inodes {
-		out := re.FindString(item.link)
+		out := re.FindString(item.Link)
 		if len(out) != 0 {
-			pid = strings.Split(item.path, "/")[2]
+			pid = strings.Split(item.Path, "/")[2]
 		}
 	}
 	return pid
@@ -229,24 +222,24 @@ func getProcessName(exe string) string {
 func getUser(uid string) string {
 	u, err := user.LookupId(uid)
 	if err != nil {
-		return "Unknown"
+		return UnknownUser
 	}
 	return u.Username
 }
 
 func removeEmpty(array []string) []string {
 	// remove empty data from line
-	var new_array []string
+	var newArray []string
 	for _, i := range array {
 		if i != "" {
-			new_array = append(new_array, i)
+			newArray = append(newArray, i)
 		}
 	}
-	return new_array
+	return newArray
 }
 
 func getInodes() []iNode {
-	fileDescriptors, err := getFileDescriptors("/proc/[0-9]*/fd/[0-9]*")
+	fileDescriptors, err := getFileDescriptors(FileDescriptors)
 	if err != nil {
 		return nil
 	}
@@ -275,4 +268,13 @@ func getFileDescriptors(pattern string) ([]string, error) {
 		return nil, err
 	}
 	return d, nil
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }

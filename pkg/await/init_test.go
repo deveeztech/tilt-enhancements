@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestIsAwaitEnabled_SetToTrue(t *testing.T) {
+func TestIsAwaitEnabledSetToTrue(t *testing.T) {
 	os.Setenv(EnvDebuguerEnabled, "true")
 	expected := true
 	result := isAwaitEnabled()
@@ -14,7 +14,7 @@ func TestIsAwaitEnabled_SetToTrue(t *testing.T) {
 	}
 }
 
-func TestIsAwaitEnabled_SetToFalse(t *testing.T) {
+func TestIsAwaitEnabledSetToFalse(t *testing.T) {
 	os.Setenv(EnvDebuguerEnabled, "false")
 	expected := false
 	result := isAwaitEnabled()
@@ -23,7 +23,7 @@ func TestIsAwaitEnabled_SetToFalse(t *testing.T) {
 	}
 }
 
-func TestIsAwaitEnabled_NotSet(t *testing.T) {
+func TestIsAwaitEnabledNotSet(t *testing.T) {
 	os.Unsetenv(EnvDebuguerEnabled)
 	expected := false
 	result := isAwaitEnabled()
