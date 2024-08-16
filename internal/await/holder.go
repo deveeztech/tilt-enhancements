@@ -1,9 +1,23 @@
 package await
 
 import (
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/deveeztech/tilt-enhancements/internal/netstat"
+)
+
+const (
+	// DefaultPollingInterval is the default polling interval
+	DefaultPollingInterval = 5
+	// DefaultPortToListen is the default port to listen
+	DefaultPortToListen = 40000
+
+	// EnvPollingInterval is the environment variable to set the polling interval
+	EnvPollingInterval = "TILT_AWAIT_POLLING_INTERVAL"
+	// EnvPortToListen is the environment variable to set the port to listen
+	EnvPortToListen = "TILT_AWAIT_PORT_TO_LISTEN"
 )
 
 type config struct {
@@ -13,6 +27,12 @@ type config struct {
 	portToListen    int
 }
 
+func (c *config) log(fmt string, args ...interface{}) {
+	if c.printf != nil {
+		c.printf(fmt, args...)
+	}
+}
+
 // Await until some process connecto to the desired port.
 // Only works on Linux systems for now.
 // netstat installed is not necessary.
@@ -20,9 +40,9 @@ func Start(opts ...Option) error {
 
 	// Default configuration
 	cfg := &config{
-		pollingInterval: 5 * time.Second,
+		pollingInterval: time.Duration(getEnv(EnvPollingInterval, DefaultPollingInterval)) * time.Second,
 		connType:        netstat.TCP,
-		portToListen:    40000,
+		portToListen:    getEnv(EnvPortToListen, DefaultPortToListen),
 	}
 
 	for _, o := range opts {
@@ -52,8 +72,15 @@ func Start(opts ...Option) error {
 
 }
 
-func (c *config) log(fmt string, args ...interface{}) {
-	if c.printf != nil {
-		c.printf(fmt, args...)
+func getEnv(key string, fallback int) int {
+
+	if value, ok := os.LookupEnv(key); ok {
+		result, err := strconv.Atoi(value)
+		if err == nil {
+			return result
+		}
+		// print an error message?
 	}
+
+	return fallback
 }
