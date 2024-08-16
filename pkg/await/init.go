@@ -9,10 +9,11 @@ import (
 )
 
 const (
-	TILT_AWAIT_DEBUGGER_ENABLED = "TILT_AWAIT_DEBUGGER_ENABLED"
+	// EnvDebuguerEnabled is the environment variable to enable the await debugger
+	EnvDebuguerEnabled = "TILT_AWAIT_DEBUGGER_ENABLED"
 )
 
-// It checks if the TILT_AWAIT_DEBUGGER_ENABLED environment variable is set to true,
+// It checks if the EnvDebuguerEnabled environment variable is set to true,
 // and if so, it starts the await functionality with the specified logger.
 func init() {
 	if isAwaitEnabled() {
@@ -20,11 +21,11 @@ func init() {
 	}
 }
 
-// isAwaitEnabled is a helper function that checks if the TILT_AWAIT_DEBUGGER_ENABLED
+// isAwaitEnabled is a helper function that checks if the EnvDebuguerEnabled
 // environment variable is set to true.
 // It returns true if the variable is set to true, and false otherwise.
 func isAwaitEnabled() bool {
-	awaitDebuggerEnabled, exists := os.LookupEnv(TILT_AWAIT_DEBUGGER_ENABLED)
+	awaitDebuggerEnabled, exists := os.LookupEnv(EnvDebuguerEnabled)
 	isAwaitEnabled, _ := strconv.ParseBool(awaitDebuggerEnabled)
 	return exists && isAwaitEnabled
 }
