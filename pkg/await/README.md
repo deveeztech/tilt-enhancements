@@ -8,7 +8,6 @@
 To use this functionality in your code you only have to import the await package:
 
 ```go
-
 package main
 
 import(
@@ -20,8 +19,21 @@ func main() {
 
     // your business logic here
 }
-
 ```
+
+Finally, to enable it you should use the following environment variable:
+```bash
+    TILT_AWAIT_DEBUGGER_ENABLED=true
+```
+
+## Configuration
+
+| Env var | Default | Description |
+|---|---|---|
+|  TILT_AWAIT_POLLING_INTERVAL | 5  | Interval of time to check the connection for the port given |
+|  TILT_AWAIT_PORT_TO_LISTEN |  40000 | Port number to check the connection |
+
+
 
 
 ## How it works 
