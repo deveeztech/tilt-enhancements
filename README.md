@@ -1,6 +1,6 @@
+# Tilt Enhancements
 [![codecov](https://codecov.io/gh/deveeztech/tilt-enhancements/graph/badge.svg?token=8I5Y6S22ZD)](https://codecov.io/gh/deveeztech/tilt-enhancements)
 
-# Tilt Enhancements
 Enhancements for [Tilt](https://tilt.dev/) toolkit
 
 
