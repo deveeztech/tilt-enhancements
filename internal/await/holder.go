@@ -14,9 +14,9 @@ const (
 	// DefaultPortToListen is the default port to listen
 	DefaultPortToListen = 40000
 
-	// EnvPollingInterval is the environment variable to set the polling interval
+	// EnvPollingInterval overwrite the default polling interval in seconds
 	EnvPollingInterval = "TILT_AWAIT_POLLING_INTERVAL"
-	// EnvPortToListen is the environment variable to set the port to listen
+	// EnvPortToListen overwrite the default port to listen
 	EnvPortToListen = "TILT_AWAIT_PORT_TO_LISTEN"
 )
 

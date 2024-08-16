@@ -40,6 +40,29 @@ func TestRemoveEmpty(t *testing.T) {
 		t.Errorf("removeEmpty(%v) = %v; want %v", input, result, expected)
 	}
 }
+
+func TestProcessNetstatLine(t *testing.T) {
+	line := "   0: 0100007F:B1B2 0100007F:9C40 01 00000000:00000000 02:000003F4 00000000     0        0 335688 4 00000000810d32b5 20 4 27 10 -1                   "
+	expected := Process{
+		User:        "root",
+		Name:        "",
+		Pid:         "",
+		Exe:         "",
+		State:       "ESTABLISHED",
+		Ip:          "127.0.0.1",
+		Port:        45490,
+		ForeignIp:   "127.0.0.1",
+		ForeignPort: 40000,
+	}
+
+	output := make(chan Process, 1)
+	go processNetstatLine(line, &[]iNode{}, output)
+	result := <-output
+
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("processNetstatLine(%s) = %v; want %v", line, result, expected)
+	}
+}
 func TestContains(t *testing.T) {
 	s := []string{"apple", "banana", "orange"}
 

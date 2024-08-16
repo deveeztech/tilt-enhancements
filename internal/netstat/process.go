@@ -161,7 +161,8 @@ func convertIp(ip string) string {
 
 	// Check IP size if greater than 8 is an IPv6 type
 	if len(ip) > 8 {
-		i := []string{ip[30:32],
+		i := []string{
+			ip[30:32],
 			ip[28:30],
 			ip[26:28],
 			ip[24:26],
@@ -176,13 +177,18 @@ func convertIp(ip string) string {
 			ip[6:8],
 			ip[4:6],
 			ip[2:4],
-			ip[0:2]}
+			ip[0:2],
+		}
 		return fmt.Sprintf(
 			"%v%v:%v%v:%v%v:%v%v:%v%v:%v%v:%v%v:%v%v",
-			i[14], i[15], i[13], i[12],
-			i[10], i[11], i[8], i[9],
-			i[6], i[7], i[4], i[5],
-			i[2], i[3], i[0], i[1],
+			i[14], i[15],
+			i[12], i[13],
+			i[10], i[11],
+			i[8], i[9],
+			i[6], i[7],
+			i[4], i[5],
+			i[2], i[3],
+			i[0], i[1],
 		)
 	}
 
